@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"net"
 )
 
@@ -17,5 +18,6 @@ func main() {
 		// process data
 		// get message, output
 		message, _ := bufio.NewReader(conn).ReadString('\n')
+		fmt.Print("Message Received:", string(message))
 	}
 }
