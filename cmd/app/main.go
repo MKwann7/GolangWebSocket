@@ -19,8 +19,6 @@ func main() {
 	middleware.UseHandler(router)
 
 	fmt.Println(http.ListenAndServe(":"+strconv.Itoa(port), middleware))
-
-	fmt.Println("We are done!")
 }
 
 func router() *mux.Router {
@@ -28,7 +26,7 @@ func router() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	router.
 		Methods("GET").
-		Path("/").
+		Path("/socket").
 		HandlerFunc(socketListen)
 
 	fmt.Println("Router created!")
