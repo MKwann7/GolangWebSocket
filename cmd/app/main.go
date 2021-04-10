@@ -51,6 +51,13 @@ func socketListen(responseWriter http.ResponseWriter, webRequest *http.Request) 
 		if messageType != websocket.TextMessage {
 			continue
 		}
-		socketConnection.WriteMessage(messageType, []byte(messageString))
+
+		if string(messageString) == "" {
+			continue
+		}
+
+		fmt.Println(messageString)
+
+		//socketConnection.WriteMessage(messageType, []byte(messageString))
 	}
 }
