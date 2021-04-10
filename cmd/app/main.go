@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -37,27 +39,55 @@ func router() *mux.Router {
 func socketListen(responseWriter http.ResponseWriter, webRequest *http.Request) {
 
 	upgradeConnection := websocket.Upgrader{}
-	socketConnection, _ := upgradeConnection.Upgrade(responseWriter, webRequest, nil)
+	socketConnection, error := upgradeConnection.Upgrade(responseWriter, webRequest, nil)
 
-	fmt.Println("Socket connection upgraded!")
+	if error != nil {
+		handleErr(responseWriter, error, http.StatusInternalServerError)
+		return
+	}
 
 	defer socketConnection.Close()
 
-	fmt.Println("Preparing to loop!")
+	for {
+		messageType, messageString, messageError := socketConnection.ReadMessage()
 
-	//for {
-	//	messageType, messageString, _ := socketConnection.ReadMessage()
-	//
-	//	if messageType != websocket.TextMessage {
-	//		continue
-	//	}
-	//	//
-	//	//if string(messageString) == "" {
-	//	//	continue
-	//	//}
-	//
-	//	fmt.Println(messageString)
-	//
-	//	//socketConnection.WriteMessage(messageType, []byte(messageString))
-	//}
+		if messageError != nil {
+			handleErr(responseWriter, messageError, http.StatusInternalServerError)
+			continue
+		}
+
+		if messageType != websocket.TextMessage {
+			handleErr(responseWriter, errors.New("only text message are supported"), http.StatusNotImplemented)
+			continue
+		}
+
+		if string(messageString) == "" {
+			continue
+		}
+
+		fmt.Println(messageString)
+
+		writeError := socketConnection.WriteMessage(messageType, []byte(messageString))
+
+		if writeError != nil {
+			handleErr(responseWriter, writeError, http.StatusInternalServerError)
+			break
+		}
+	}
+}
+
+func handleErr(responseWriter http.ResponseWriter, err error, status int) {
+	msg, err := json.Marshal(&httpErr{
+		Msg:  err.Error(),
+		Code: status,
+	})
+	if err != nil {
+		msg = []byte(err.Error())
+	}
+	http.Error(responseWriter, string(msg), status)
+}
+
+type httpErr struct {
+	Msg  string `json:"msg"`
+	Code int    `json:"code"`
 }
