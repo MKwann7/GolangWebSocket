@@ -45,19 +45,19 @@ func socketListen(responseWriter http.ResponseWriter, webRequest *http.Request) 
 
 	fmt.Println("Preparing to loop!")
 
-	for {
-		messageType, messageString, _ := socketConnection.ReadMessage()
-
-		if messageType != websocket.TextMessage {
-			continue
-		}
-		//
-		//if string(messageString) == "" {
-		//	continue
-		//}
-
-		fmt.Println(messageString)
-
-		//socketConnection.WriteMessage(messageType, []byte(messageString))
-	}
+	//for {
+	//	messageType, messageString, _ := socketConnection.ReadMessage()
+	//
+	//	if messageType != websocket.TextMessage {
+	//		continue
+	//	}
+	//	//
+	//	//if string(messageString) == "" {
+	//	//	continue
+	//	//}
+	//
+	//	fmt.Println(messageString)
+	//
+	//	//socketConnection.WriteMessage(messageType, []byte(messageString))
+	//}
 }
