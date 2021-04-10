@@ -18,7 +18,7 @@ func main() {
 	middleware := negroni.Classic()
 	middleware.UseHandler(router)
 
-	fmt.Println(http.ListenAndServe(strconv.Itoa(port), middleware))
+	fmt.Println(http.ListenAndServe(":"+strconv.Itoa(port), middleware))
 
 	fmt.Println("We are done!")
 }
