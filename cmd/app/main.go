@@ -1,28 +1,49 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"net"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
+	"github.com/urfave/negroni"
+	"net/http"
 	"strconv"
 )
 
 func main() {
 
 	// configuration
-	network := "tcp"
 	port := 8080
 
-	// listen on port 8080
-	ln, _ := net.Listen(network, ":"+strconv.Itoa(port))
+	router := router()
+	middleware := negroni.Classic()
+	middleware.UseHandler(router)
 
-	// accept connection
-	conn, _ := ln.Accept()
+	http.ListenAndServe(strconv.Itoa(port), middleware)
+}
 
-	// run loop forever (or until ctrl-c)
+func router() *mux.Router {
+
+	router := mux.NewRouter().StrictSlash(true)
+	router.
+		Methods("GET").
+		Path("/").
+		HandlerFunc(socketListen)
+
+	return router
+}
+
+func socketListen(responseWriter http.ResponseWriter, webRequest *http.Request) {
+
+	upgradeConnection := websocket.Upgrader{}
+	socketConnection, _ := upgradeConnection.Upgrade(responseWriter, webRequest, nil)
+
+	defer socketConnection.Close()
+
 	for {
-		message, _ := bufio.NewReader(conn).ReadString('\n')
+		messageType, messageString, _ := socketConnection.ReadMessage()
 
-		fmt.Print("Message Received:", string(message))
+		if messageType != websocket.TextMessage {
+			continue
+		}
+		socketConnection.WriteMessage(messageType, []byte(messageString))
 	}
 }
