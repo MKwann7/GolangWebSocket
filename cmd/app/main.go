@@ -51,6 +51,8 @@ func socketListen(responseWriter http.ResponseWriter, webRequest *http.Request) 
 	for {
 		messageType, messageString, messageError := socketConnection.ReadMessage()
 
+		fmt.Println("We have a message.")
+
 		if messageError != nil {
 			handleErr(responseWriter, messageError, http.StatusInternalServerError)
 			continue
