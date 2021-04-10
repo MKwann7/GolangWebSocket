@@ -11,6 +11,10 @@ import (
 	"strconv"
 )
 
+var (
+	upgradeConnection = websocket.Upgrader{}
+)
+
 func main() {
 
 	// configuration
@@ -38,7 +42,6 @@ func router() *mux.Router {
 
 func socketListen(responseWriter http.ResponseWriter, webRequest *http.Request) {
 
-	upgradeConnection := websocket.Upgrader{}
 	socketConnection, error := upgradeConnection.Upgrade(responseWriter, webRequest, nil)
 
 	if error != nil {
