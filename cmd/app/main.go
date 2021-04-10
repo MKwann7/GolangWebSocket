@@ -65,7 +65,7 @@ func socketListen(responseWriter http.ResponseWriter, webRequest *http.Request) 
 			continue
 		}
 
-		fmt.Println(messageString)
+		fmt.Println("Here is the message: " + string(messageString))
 
 		writeError := socketConnection.WriteMessage(messageType, []byte(messageString))
 
