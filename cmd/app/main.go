@@ -46,7 +46,7 @@ func socketListen(responseWriter http.ResponseWriter, webRequest *http.Request) 
 
 	if error != nil {
 		handleErr(responseWriter, error, http.StatusInternalServerError)
-		fmt.Println("Error in the middleware.")
+		return
 	}
 
 	defer socketConnection.Close()
