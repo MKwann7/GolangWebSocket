@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/urfave/negroni"
@@ -24,7 +23,7 @@ func main() {
 	middleware := negroni.Classic()
 	middleware.UseHandler(router)
 
-	fmt.Println(http.ListenAndServe(":"+strconv.Itoa(port), middleware))
+	http.ListenAndServe(":"+strconv.Itoa(port), middleware)
 }
 
 func router() *mux.Router {
