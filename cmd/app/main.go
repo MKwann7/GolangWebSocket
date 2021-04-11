@@ -35,8 +35,6 @@ func router() *mux.Router {
 		Path("/socket").
 		HandlerFunc(socketListen)
 
-	fmt.Println("Router created!")
-
 	return router
 }
 
@@ -54,8 +52,6 @@ func socketListen(responseWriter http.ResponseWriter, webRequest *http.Request) 
 	for {
 		messageType, messageString, messageError := socketConnection.ReadMessage()
 
-		fmt.Println("We have a message.")
-
 		if messageError != nil {
 			handleErr(responseWriter, messageError, http.StatusInternalServerError)
 			continue
@@ -69,8 +65,6 @@ func socketListen(responseWriter http.ResponseWriter, webRequest *http.Request) 
 		if string(messageString) == "" {
 			continue
 		}
-
-		fmt.Println("Here is the message: " + string(messageString))
 
 		writeError := socketConnection.WriteMessage(messageType, []byte(messageString))
 
