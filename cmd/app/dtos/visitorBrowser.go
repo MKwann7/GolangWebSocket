@@ -1,7 +1,6 @@
 package dtos
 
 import (
-	"errors"
 	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/builder"
 	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/db"
 	"github.com/google/uuid"
@@ -23,11 +22,7 @@ func (vb *VisitorBrowsers) GetById(userId int) (*VisitorBrowser, error) {
 		return nil, error
 	}
 
-	returnModel, success := interfaceModel.(*VisitorBrowser)
-
-	if success != true {
-		return nil, errors.New("could not process VisitorBrowser model")
-	}
+	returnModel := vb.assignInterfaceModel(interfaceModel)
 
 	return returnModel, nil
 }
@@ -42,11 +37,7 @@ func (vb *VisitorBrowsers) GetByUuid(userUuid uuid.UUID) (*VisitorBrowser, error
 		return nil, error
 	}
 
-	returnModel, success := interfaceModel.(*VisitorBrowser)
-
-	if success != true {
-		return nil, errors.New("could not process VisitorBrowser model")
-	}
+	returnModel := vb.assignInterfaceModel(interfaceModel)
 
 	return returnModel, nil
 }
@@ -65,12 +56,7 @@ func (vb *VisitorBrowsers) GetWhere(whereClause string, sort string, limit int) 
 
 	for i := 0; i < len(interfaceCollection); i++ {
 		interfaceEntity := interfaceCollection[i]
-		collectionEntity, success := interfaceEntity.(*VisitorBrowser)
-
-		if success != true {
-			continue
-		}
-
+		collectionEntity := vb.assignInterfaceModel(interfaceEntity)
 		collection[i] = collectionEntity
 	}
 
@@ -81,6 +67,22 @@ func (vb *VisitorBrowsers) GetWhere(whereClause string, sort string, limit int) 
 func (vb *VisitorBrowsers) getConnection() db.Connection {
 	connection := db.Connection{}
 	return connection.GetTraffic("visitor_browser", "visitor_browser_id", "browser_cookie")
+}
+
+func (vb *VisitorBrowsers) assignInterfaceModel(model map[string]interface{}) *VisitorBrowser {
+	returnModel := &VisitorBrowser{}
+	returnModel.VisitorBrowserId, _ = model["visitor_browser_id"].(int)
+	returnModel.CompanyId, _ = model["company_id"].(int)
+	returnModel.UserId, _ = model["user_id"].(int)
+	returnModel.ContactId, _ = model["contact_id"].(int)
+	returnModel.BrowserCookie, _ = model["browser_cookie"].(string)
+	returnModel.BrowserIp, _ = model["browser_ip"].(string)
+	returnModel.DeviceType, _ = model["device_type"].(string)
+	returnModel.LoggedInAt, _ = time.Parse("2020-04-15 13:05:01", model["logged_in_at"].(string))
+	returnModel.LastUpdated, _ = time.Parse("2020-04-15 13:05:01", model["last_updated"].(string))
+	returnModel.CreatedOn, _ = time.Parse("2020-04-15 13:05:01", model["created_on"].(string))
+
+	return returnModel
 }
 
 type VisitorBrowser struct {

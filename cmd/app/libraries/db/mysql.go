@@ -1,14 +1,13 @@
 package db
 
 import (
-	"github.com/MKwann7/GolangWebSocket/cmd/app/dtos"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"log"
 	"reflect"
 )
 
-func GetWhere(connection Connection, model reflect.Type, whereClause string, sort string, limit int) ([]interface{}, error) {
+func GetWhere(connection Connection, model reflect.Type, whereClause string, sort string, limit int) ([]map[string]interface{}, error) {
 
 	database, databaseError := sqlx.Open("mysql", connection.UserName+":"+connection.Password+"@tcp("+connection.IpAddress+":"+connection.Port+")/"+connection.Database)
 
@@ -28,11 +27,22 @@ func GetWhere(connection Connection, model reflect.Type, whereClause string, sor
 	// be careful deferring Queries if you are using transactions
 	defer rows.Close()
 
-	var returnCollection []interface{}
+	var returnCollection []map[string]interface{}
+
+	cols, _ := rows.ColumnTypes()
+
+	pointers := make([]interface{}, len(cols))
+	modelInstance := make(map[string]interface{}, len(cols))
+
+	for index, column := range cols {
+		var value interface{}
+
+		modelInstance[column.Name()] = value
+		pointers[index] = value
+	}
 
 	for rows.Next() {
-		modelInstance := newEntityFromReflection(model)
-		err := rows.StructScan(modelInstance)
+		err := rows.Scan(pointers...)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -40,15 +50,4 @@ func GetWhere(connection Connection, model reflect.Type, whereClause string, sor
 	}
 
 	return returnCollection, nil
-}
-
-func newEntityFromReflection(entityType reflect.Type) interface{} {
-	switch entityType.String() {
-	case "dtos.User":
-		return dtos.User{}
-	case "dtos.VistiorBrowser":
-		return dtos.VisitorBrowser{}
-	default:
-		return nil
-	}
 }

@@ -1,7 +1,6 @@
 package dtos
 
 import (
-	"errors"
 	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/builder"
 	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/db"
 	"github.com/google/uuid"
@@ -23,11 +22,7 @@ func (users *Users) GetById(userId int) (*User, error) {
 		return nil, error
 	}
 
-	returnModel, success := interfaceModel.(*User)
-
-	if success != true {
-		return nil, errors.New("could not process User model")
-	}
+	returnModel := users.assignInterfaceModel(interfaceModel)
 
 	return returnModel, nil
 }
@@ -42,11 +37,7 @@ func (users *Users) GetByUuid(userUuid uuid.UUID) (*User, error) {
 		return nil, error
 	}
 
-	returnModel, success := interfaceModel.(*User)
-
-	if success != true {
-		return nil, errors.New("could not process User model")
-	}
+	returnModel := users.assignInterfaceModel(interfaceModel)
 
 	return returnModel, nil
 }
@@ -57,6 +48,26 @@ func (users *Users) getConnection() db.Connection {
 	return connection.GetMain("user", "user_id", "sys_row_id")
 }
 
+func (users *Users) assignInterfaceModel(model map[string]interface{}) *User {
+	returnModel := &User{}
+	returnModel.UserId, _ = model["user_id"].(int)
+	returnModel.CompanyId, _ = model["company_id"].(int)
+	returnModel.OriginatorId, _ = model["sponsor_id"].(int)
+	returnModel.FirstName, _ = model["first_name"].(string)
+	returnModel.LastName, _ = model["last_name"].(string)
+	returnModel.NamePrefix, _ = model["name_prefix"].(string)
+	returnModel.MiddleName, _ = model["middle_name"].(string)
+	returnModel.NameSuffix, _ = model["name_sufx"].(string)
+	returnModel.Username, _ = model["username"].(string)
+	returnModel.Password, _ = model["password"].(string)
+	returnModel.PasswordResetToken, _ = model["password_reset_token"].(string)
+	returnModel.Pin, _ = model["pin"].(int)
+	returnModel.UserEmail, _ = model["user_email"].(string)
+	returnModel.UserPhone, _ = model["user_phone"].(string)
+
+	return returnModel
+}
+
 type User struct {
 	UserId             int       `field:"user_id"`
 	CompanyId          int       `field:"company_id"`
@@ -65,15 +76,15 @@ type User struct {
 	LastName           string    `field:"last_name"`
 	NamePrefix         string    `field:"name_prefix"`
 	MiddleName         string    `field:"middle_name"`
-	NameSuffix         string    `field:"name_suffix"`
+	NameSuffix         string    `field:"name_sufx"`
 	Username           string    `field:"username"`
 	Password           string    `field:"password"`
 	PasswordResetToken string    `field:"password_reset_token"`
 	Pin                int       `field:"pin"`
-	UserEmailId        int       `field:"user_email_id"`
-	UserEmail          string    `field:"user_email"`
-	UserPhoneId        int       `field:"user_phone_id"`
-	UserPhone          string    `field:"user_phone"`
+	UserEmailId        int       `field:"user_email"`
+	UserEmail          string    `field:"user_email_value"`
+	UserPhoneId        int       `field:"user_phone"`
+	UserPhone          string    `field:"user_phone_value"`
 	CreatedOn          time.Time `field:"created_on"`
 	CreatedBy          int       `field:"created_by"`
 	LastUpdated        time.Time `field:"last_updated"`
