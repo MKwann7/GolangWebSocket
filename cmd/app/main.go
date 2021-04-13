@@ -1,13 +1,16 @@
 package main
 
 import (
-	"encoding/json"
-	"errors"
+	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/errorManagement"
+	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/process"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"github.com/joho/godotenv"
 	"github.com/urfave/negroni"
+	"log"
 	"net/http"
-	"strconv"
+	"os"
+	"time"
 )
 
 var (
@@ -22,14 +25,17 @@ var (
 
 func main() {
 
-	// configuration
-	port := 8080
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	router := router()
 	middleware := negroni.Classic()
 	middleware.UseHandler(router)
 
-	http.ListenAndServe(":"+strconv.Itoa(port), middleware)
+	http.ListenAndServe(":"+os.Getenv("PORT_NUM"), middleware)
 }
 
 func router() *mux.Router {
@@ -45,53 +51,46 @@ func router() *mux.Router {
 
 func socketListen(responseWriter http.ResponseWriter, webRequest *http.Request) {
 
-	socketConnection, error := upgradeConnection.Upgrade(responseWriter, webRequest, nil)
+	user, validationError := process.ValidateConnection(webRequest)
 
-	if error != nil {
-		handleErr(responseWriter, error, http.StatusInternalServerError)
+	if validationError != nil {
+		errorManagement.HandleErr(responseWriter, validationError, http.StatusBadRequest)
+		return
+	}
+
+	socketConnection, upgradeError := upgradeConnection.Upgrade(responseWriter, webRequest, nil)
+
+	if upgradeError != nil {
+		errorManagement.HandleErr(responseWriter, upgradeError, http.StatusInternalServerError)
 		return
 	}
 
 	defer socketConnection.Close()
 
 	for {
-		messageType, messageString, messageError := socketConnection.ReadMessage()
 
-		if messageError != nil {
-			handleErr(responseWriter, messageError, http.StatusInternalServerError)
-			continue
+		notificationCheckResult := process.CheckForNewNotifications(user)
+
+		if notificationCheckResult != "" {
+			writeNotificationError := socketConnection.WriteMessage(1, []byte(notificationCheckResult))
+
+			if writeNotificationError != nil {
+				errorManagement.HandleErr(responseWriter, writeNotificationError, http.StatusInternalServerError)
+				break
+			}
 		}
 
-		if messageType != websocket.TextMessage {
-			handleErr(responseWriter, errors.New("only text message are supported"), http.StatusNotImplemented)
-			continue
+		inboundMessageResult := process.ProcessInboundMessage(socketConnection, responseWriter)
+
+		if inboundMessageResult != nil {
+			writeNotificationError := socketConnection.WriteMessage(1, []byte(inboundMessageResult))
+
+			if writeNotificationError != nil {
+				errorManagement.HandleErr(responseWriter, writeNotificationError, http.StatusInternalServerError)
+				break
+			}
 		}
 
-		if string(messageString) == "" {
-			continue
-		}
-
-		writeError := socketConnection.WriteMessage(messageType, []byte(messageString))
-
-		if writeError != nil {
-			handleErr(responseWriter, writeError, http.StatusInternalServerError)
-			break
-		}
+		time.Sleep(1 * time.Second)
 	}
-}
-
-func handleErr(responseWriter http.ResponseWriter, err error, status int) {
-	msg, err := json.Marshal(&httpErr{
-		Msg:  err.Error(),
-		Code: status,
-	})
-	if err != nil {
-		msg = []byte(err.Error())
-	}
-	http.Error(responseWriter, string(msg), status)
-}
-
-type httpErr struct {
-	Msg  string `json:"msg"`
-	Code int    `json:"code"`
 }
