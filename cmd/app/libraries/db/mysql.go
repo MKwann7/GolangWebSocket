@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/helper"
+	"github.com/MKwann7/GolangWebSocket/cmd/app/dtos"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"log"
@@ -31,7 +31,7 @@ func GetWhere(connection Connection, model reflect.Type, whereClause string, sor
 	var returnCollection []interface{}
 
 	for rows.Next() {
-		modelInstance := helper.NewEntityFromReflection(model)
+		modelInstance := newEntityFromReflection(model)
 		err := rows.StructScan(modelInstance)
 		if err != nil {
 			log.Fatal(err)
@@ -40,4 +40,15 @@ func GetWhere(connection Connection, model reflect.Type, whereClause string, sor
 	}
 
 	return returnCollection, nil
+}
+
+func newEntityFromReflection(entityType reflect.Type) interface{} {
+	switch entityType.String() {
+	case "dtos.User":
+		return dtos.User{}
+	case "dtos.VistiorBrowser":
+		return dtos.VisitorBrowser{}
+	default:
+		return nil
+	}
 }
