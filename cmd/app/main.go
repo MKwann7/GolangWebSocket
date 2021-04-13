@@ -55,6 +55,7 @@ func socketListen(responseWriter http.ResponseWriter, webRequest *http.Request) 
 
 	if validationError != nil {
 		errorManagement.HandleErr(responseWriter, validationError, http.StatusBadRequest)
+		log.Println(validationError.Error())
 		return
 	}
 
