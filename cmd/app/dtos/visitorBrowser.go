@@ -17,7 +17,7 @@ type VisitorBrowsers struct {
 func (vb *VisitorBrowsers) GetById(userId int) (*VisitorBrowser, error) {
 	connection := vb.getConnection()
 	model := VisitorBrowser{}
-	interfaceModel, error := vb.builder.GetById(userId, connection, model)
+	interfaceModel, error := vb.builder.GetById(userId, connection, reflect.TypeOf(model))
 
 	if error != nil {
 		return nil, error
@@ -36,7 +36,7 @@ func (vb *VisitorBrowsers) GetById(userId int) (*VisitorBrowser, error) {
 func (vb *VisitorBrowsers) GetByUuid(userUuid uuid.UUID) (*VisitorBrowser, error) {
 	connection := vb.getConnection()
 	model := VisitorBrowser{}
-	interfaceModel, error := vb.builder.GetByUuid(userUuid, connection, model)
+	interfaceModel, error := vb.builder.GetByUuid(userUuid, connection, reflect.TypeOf(model))
 
 	if error != nil {
 		return nil, error
@@ -55,7 +55,7 @@ func (vb *VisitorBrowsers) GetByUuid(userUuid uuid.UUID) (*VisitorBrowser, error
 func (vb *VisitorBrowsers) GetWhere(whereClause string, sort string, limit int) ([]*VisitorBrowser, error) {
 	connection := vb.getConnection()
 	model := VisitorBrowser{}
-	interfaceCollection, error := vb.builder.GetWhere(connection, model, whereClause, sort, limit)
+	interfaceCollection, error := vb.builder.GetWhere(connection, reflect.TypeOf(model), whereClause, sort, limit)
 
 	if error != nil {
 		return nil, error
