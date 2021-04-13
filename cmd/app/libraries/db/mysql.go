@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/helper"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"log"
@@ -30,7 +31,7 @@ func GetWhere(connection Connection, model reflect.Type, whereClause string, sor
 	var returnCollection []interface{}
 
 	for rows.Next() {
-		modelInstance := reflect.New(model)
+		modelInstance := helper.NewEntityFromReflection(model)
 		err := rows.StructScan(modelInstance)
 		if err != nil {
 			log.Fatal(err)
