@@ -10,7 +10,8 @@ func ValidateConnection(webRequest *http.Request) (*dtos.User, error) {
 
 	authUuidString := webRequest.URL.Query().Get("auth")
 
-	collection, err := dtos.VisitorBrowsers{}.GetWhere("browser_cookie = '"+authUuidString+"'", "ASC", 1)
+	visitors := dtos.VisitorBrowsers{}
+	collection, err := visitors.GetWhere("browser_cookie = '"+authUuidString+"'", "ASC", 1)
 
 	if err != nil {
 		return nil, errors.New("we were unable to find an active session")
@@ -18,7 +19,8 @@ func ValidateConnection(webRequest *http.Request) (*dtos.User, error) {
 
 	vistiorBrowser := collection[0]
 
-	user, err := dtos.Users{}.GetById(vistiorBrowser.UserId)
+	users := dtos.Users{}
+	user, err := users.GetById(vistiorBrowser.UserId)
 
 	if err != nil {
 		return nil, err
