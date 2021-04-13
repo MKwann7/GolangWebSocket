@@ -7,7 +7,7 @@ import (
 	"reflect"
 )
 
-func GetWhere(connection Connection, model interface{}, whereClause string, sort string, limit int) ([]interface{}, error) {
+func GetWhere(connection Connection, model reflect.Type, whereClause string, sort string, limit int) ([]interface{}, error) {
 
 	database, databaseError := sql.Open("mysql", connection.UserName+":"+connection.Password+"@tcp("+connection.IpAddress+":"+connection.Port+")/"+connection.Database)
 
@@ -30,7 +30,7 @@ func GetWhere(connection Connection, model interface{}, whereClause string, sort
 	var returnCollection []interface{}
 
 	for rows.Next() {
-		modelInstance := reflect.New(reflect.TypeOf(model))
+		modelInstance := reflect.New(model)
 		modelElements := reflect.ValueOf(&modelInstance).Elem()
 		numCols := modelElements.NumField()
 		columns := make([]interface{}, numCols)

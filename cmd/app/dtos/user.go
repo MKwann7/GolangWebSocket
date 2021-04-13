@@ -5,6 +5,7 @@ import (
 	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/builder"
 	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/db"
 	"github.com/google/uuid"
+	"reflect"
 	"time"
 )
 
@@ -15,39 +16,39 @@ type Users struct {
 // LocalAddr returns the local network address.
 func (users *Users) GetById(userId int) (*User, error) {
 	connection := users.getConnection()
-	user := User{}
-	interfaceModel, error := users.builder.GetById(userId, connection, user)
+	model := User{}
+	interfaceModel, error := users.builder.GetById(userId, connection, reflect.TypeOf(model))
 
 	if error != nil {
 		return nil, error
 	}
 
-	model, success := interfaceModel.(*User)
+	returnModel, success := interfaceModel.(*User)
 
 	if success != true {
 		return nil, errors.New("could not process User model")
 	}
 
-	return model, nil
+	return returnModel, nil
 }
 
 // LocalAddr returns the local network address.
 func (users *Users) GetByUuid(userUuid uuid.UUID) (*User, error) {
 	connection := users.getConnection()
-	user := User{}
-	interfaceModel, error := users.builder.GetByUuid(userUuid, connection, user)
+	model := User{}
+	interfaceModel, error := users.builder.GetByUuid(userUuid, connection, reflect.TypeOf(model))
 
 	if error != nil {
 		return nil, error
 	}
 
-	model, success := interfaceModel.(*User)
+	returnModel, success := interfaceModel.(*User)
 
 	if success != true {
 		return nil, errors.New("could not process User model")
 	}
 
-	return model, nil
+	return returnModel, nil
 }
 
 // LocalAddr returns the local network address.

@@ -5,6 +5,7 @@ import (
 	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/builder"
 	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/db"
 	"github.com/google/uuid"
+	"reflect"
 	"time"
 )
 
@@ -15,46 +16,46 @@ type VisitorBrowsers struct {
 // LocalAddr returns the local network address.
 func (vb *VisitorBrowsers) GetById(userId int) (*VisitorBrowser, error) {
 	connection := vb.getConnection()
-	user := VisitorBrowser{}
-	interfaceModel, error := vb.builder.GetById(userId, connection, &user)
+	model := VisitorBrowser{}
+	interfaceModel, error := vb.builder.GetById(userId, connection, reflect.TypeOf(model))
 
 	if error != nil {
 		return nil, error
 	}
 
-	model, success := interfaceModel.(*VisitorBrowser)
+	returnModel, success := interfaceModel.(*VisitorBrowser)
 
 	if success != true {
 		return nil, errors.New("could not process VisitorBrowser model")
 	}
 
-	return model, nil
+	return returnModel, nil
 }
 
 // LocalAddr returns the local network address.
 func (vb *VisitorBrowsers) GetByUuid(userUuid uuid.UUID) (*VisitorBrowser, error) {
 	connection := vb.getConnection()
-	user := VisitorBrowser{}
-	interfaceModel, error := vb.builder.GetByUuid(userUuid, connection, user)
+	model := VisitorBrowser{}
+	interfaceModel, error := vb.builder.GetByUuid(userUuid, connection, reflect.TypeOf(model))
 
 	if error != nil {
 		return nil, error
 	}
 
-	model, success := interfaceModel.(*VisitorBrowser)
+	returnModel, success := interfaceModel.(*VisitorBrowser)
 
 	if success != true {
 		return nil, errors.New("could not process VisitorBrowser model")
 	}
 
-	return model, nil
+	return returnModel, nil
 }
 
 // LocalAddr returns the local network address.
 func (vb *VisitorBrowsers) GetWhere(whereClause string, sort string, limit int) ([]*VisitorBrowser, error) {
 	connection := vb.getConnection()
-	user := VisitorBrowser{}
-	interfaceCollection, error := vb.builder.GetWhere(connection, user, whereClause, sort, limit)
+	model := VisitorBrowser{}
+	interfaceCollection, error := vb.builder.GetWhere(connection, reflect.TypeOf(model), whereClause, sort, limit)
 
 	if error != nil {
 		return nil, error
