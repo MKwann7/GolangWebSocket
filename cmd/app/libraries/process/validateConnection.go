@@ -1,7 +1,6 @@
 package process
 
 import (
-	"errors"
 	"github.com/MKwann7/GolangWebSocket/cmd/app/dtos"
 	"net/http"
 )
@@ -14,7 +13,7 @@ func ValidateConnection(webRequest *http.Request) (*dtos.User, error) {
 	collection, err := visitors.GetWhere("browser_cookie = '"+authUuidString+"'", "ASC", 1)
 
 	if err != nil {
-		return nil, errors.New("we were unable to find an active session: " + authUuidString)
+		return nil, err
 	}
 
 	vistiorBrowser := collection[0]
