@@ -52,7 +52,8 @@ func (users *Users) GetByUuid(userUuid uuid.UUID) (*User, error) {
 
 // LocalAddr returns the local network address.
 func (users *Users) getConnection() db.Connection {
-	return db.Connection{}.GetMain("user", "user_id", "sys_row_id")
+	connection := db.Connection{}
+	return connection.GetMain("user", "user_id", "sys_row_id")
 }
 
 type User struct {

@@ -78,7 +78,8 @@ func (vb *VisitorBrowsers) GetWhere(whereClause string, sort string, limit int) 
 
 // LocalAddr returns the local network address.
 func (vb *VisitorBrowsers) getConnection() db.Connection {
-	return db.Connection{}.GetTraffic("visitor_browser", "visitor_browser_id", "browser_cookie")
+	connection := db.Connection{}
+	return connection.GetTraffic("visitor_browser", "visitor_browser_id", "browser_cookie")
 }
 
 type VisitorBrowser struct {
