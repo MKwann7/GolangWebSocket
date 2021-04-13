@@ -14,7 +14,7 @@ func ValidateConnection(webRequest *http.Request) (*dtos.User, error) {
 	collection, err := visitors.GetWhere("browser_cookie = '"+authUuidString+"'", "ASC", 1)
 
 	if err != nil {
-		return nil, errors.New("we were unable to find an active session")
+		return nil, errors.New("we were unable to find an active session: " + authUuidString)
 	}
 
 	vistiorBrowser := collection[0]
