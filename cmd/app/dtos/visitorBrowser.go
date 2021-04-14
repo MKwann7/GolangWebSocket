@@ -1,18 +1,18 @@
 package dtos
 
 import (
+	"errors"
 	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/builder"
 	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/db"
+	"github.com/MKwann7/GolangWebSocket/cmd/app/libraries/helper"
 	"github.com/google/uuid"
 	"reflect"
-	"time"
 )
 
 type VisitorBrowsers struct {
 	builder builder.Builder
 }
 
-// LocalAddr returns the local network address.
 func (vb *VisitorBrowsers) GetById(userId int) (*VisitorBrowser, error) {
 	connection := vb.getConnection()
 	model := VisitorBrowser{}
@@ -27,7 +27,6 @@ func (vb *VisitorBrowsers) GetById(userId int) (*VisitorBrowser, error) {
 	return returnModel, nil
 }
 
-// LocalAddr returns the local network address.
 func (vb *VisitorBrowsers) GetByUuid(userUuid uuid.UUID) (*VisitorBrowser, error) {
 	connection := vb.getConnection()
 	model := VisitorBrowser{}
@@ -42,7 +41,6 @@ func (vb *VisitorBrowsers) GetByUuid(userUuid uuid.UUID) (*VisitorBrowser, error
 	return returnModel, nil
 }
 
-// LocalAddr returns the local network address.
 func (vb *VisitorBrowsers) GetWhere(whereClause string, sort string, limit int) ([]*VisitorBrowser, error) {
 	connection := vb.getConnection()
 	model := VisitorBrowser{}
@@ -57,7 +55,16 @@ func (vb *VisitorBrowsers) GetWhere(whereClause string, sort string, limit int) 
 	for i := 0; i < len(interfaceCollection); i++ {
 		interfaceEntity := interfaceCollection[i]
 		collectionEntity := vb.assignInterfaceModel(interfaceEntity)
+
+		if collectionEntity.VisitorBrowserId == -1 {
+			continue
+		}
+
 		collection[i] = collectionEntity
+	}
+
+	if len(collection) == 0 {
+		return nil, errors.New("no rows returned")
 	}
 
 	return collection, nil
@@ -71,29 +78,30 @@ func (vb *VisitorBrowsers) getConnection() db.Connection {
 
 func (vb *VisitorBrowsers) assignInterfaceModel(model map[string]interface{}) *VisitorBrowser {
 	returnModel := &VisitorBrowser{}
-	returnModel.VisitorBrowserId, _ = model["visitor_browser_id"].(int)
-	returnModel.CompanyId, _ = model["company_id"].(int)
-	returnModel.UserId, _ = model["user_id"].(int)
-	returnModel.ContactId, _ = model["contact_id"].(int)
-	returnModel.BrowserCookie, _ = model["browser_cookie"].(string)
-	returnModel.BrowserIp, _ = model["browser_ip"].(string)
-	returnModel.DeviceType, _ = model["device_type"].(string)
-	returnModel.LoggedInAt, _ = time.Parse("2020-04-15 13:05:01", model["logged_in_at"].(string))
-	returnModel.LastUpdated, _ = time.Parse("2020-04-15 13:05:01", model["last_updated"].(string))
-	returnModel.CreatedOn, _ = time.Parse("2020-04-15 13:05:01", model["created_on"].(string))
+
+	returnModel.VisitorBrowserId = helper.CastAsNullableInt(model["visitor_browser_id"])
+	returnModel.CompanyId = helper.CastAsNullableInt(model["company_id"])
+	returnModel.UserId = helper.CastAsNullableInt(model["user_id"])
+	returnModel.ContactId = helper.CastAsNullableInt(model["contact_id"])
+	returnModel.BrowserCookie = helper.CastAsNullableString(model["browser_cookie"])
+	returnModel.BrowserIp = helper.CastAsNullableString(model["browser_ip"])
+	returnModel.DeviceType = helper.CastAsNullableString(model["device_type"])
+	returnModel.LoggedInAt = helper.CastToNullableTime(model["logged_in_at"])
+	returnModel.LastUpdated = helper.CastToNullableTime(model["last_updated"])
+	returnModel.CreatedOn = helper.CastToNullableTime(model["created_on"])
 
 	return returnModel
 }
 
 type VisitorBrowser struct {
-	VisitorBrowserId int       `field:"visitor_browser_id"`
-	CompanyId        int       `field:"company_id"`
-	UserId           int       `field:"user_id"`
-	ContactId        int       `field:"contact_id"`
-	BrowserCookie    string    `field:"browser_cookie"`
-	BrowserIp        string    `field:"browser_ip"`
-	DeviceType       string    `field:"device_type"`
-	LoggedInAt       time.Time `field:"logged_in_at"`
-	LastUpdated      time.Time `field:"last_updated"`
-	CreatedOn        time.Time `field:"created_on"`
+	VisitorBrowserId int             `field:"visitor_browser_id"`
+	CompanyId        int             `field:"company_id"`
+	UserId           int             `field:"user_id"`
+	ContactId        int             `field:"contact_id"`
+	BrowserCookie    string          `field:"browser_cookie"`
+	BrowserIp        string          `field:"browser_ip"`
+	DeviceType       string          `field:"device_type"`
+	LoggedInAt       helper.NullTime `field:"logged_in_at"`
+	LastUpdated      helper.NullTime `field:"last_updated"`
+	CreatedOn        helper.NullTime `field:"created_on"`
 }

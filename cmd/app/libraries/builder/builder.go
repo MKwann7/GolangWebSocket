@@ -32,7 +32,9 @@ func (builder *Builder) GetByUuid(entityUuid uuid.UUID, connection db.Connection
 
 func (builder *Builder) GetWhere(connection db.Connection, model reflect.Type, whereClause string, sort string, limit int) ([]map[string]interface{}, error) {
 	switch connection.DbType {
+	case "postgres":
+		return db.PostgresGetWhere(connection, model, whereClause, sort, limit)
 	default:
-		return db.GetWhere(connection, model, whereClause, sort, limit)
+		return db.MysqlGetWhere(connection, model, whereClause, sort, limit)
 	}
 }

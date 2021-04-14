@@ -44,3 +44,16 @@ func (connection *Connection) GetTraffic(tableName string, userKey string, uuidK
 		os.Getenv("TRAFFIC_DB_PASS"),
 		MySQL}
 }
+
+func (connection *Connection) GetNotification(tableName string, userKey string, uuidKey string) Connection {
+	return Connection{
+		os.Getenv("NOTIFY_DB_NAME") + "." + tableName,
+		userKey,
+		uuidKey,
+		os.Getenv("NOTIFY_DB_HOST"),
+		os.Getenv("NOTIFY_DB_PORT"),
+		os.Getenv("NOTIFY_DB_NAME"),
+		os.Getenv("NOTIFY_DB_USER"),
+		os.Getenv("NOTIFY_DB_PASS"),
+		Postgres}
+}
